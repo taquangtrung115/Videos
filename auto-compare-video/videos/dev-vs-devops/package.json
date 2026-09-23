@@ -1,0 +1,26 @@
+{
+  "name": "dev-vs-devops",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync-channel": "node scripts/sync-channel.mjs",
+    "predev": "npm run sync-channel",
+    "dev": "hyperframes preview",
+    "precheck": "npm run sync-channel",
+    "check": "hyperframes check",
+    "prerender": "npm run sync-channel",
+    "render": "hyperframes render",
+    "postrender": "node scripts/postrender.mjs",
+    "prepublish": "npm run sync-channel",
+    "publish": "hyperframes publish"
+  },
+  "dependencies": {
+    "edge-tts-universal": "^1.4.0",
+    "music-metadata": "^11.16.0"
+  },
+  "devDependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
+    "hyperframes": "0.7.58"
+  }
+}

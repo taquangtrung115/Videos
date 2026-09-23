@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1080, height=1920">
+    <title>So sánh kiến thức — Dev vs DevOps</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Be Vietnam Pro / JetBrains Mono, embedded directly (not a Google Fonts <link>)
+         so the "vietnamese" unicode-range subset — precomposed tone-mark glyphs like
+         ệ, ẫ, ổ (U+1EA0-1EF9) — loads correctly. The compiler's pre-bundled embed for
+         these families only covers "latin", which drops Vietnamese diacritics. */
+      @font-face {
+        font-family: "Be Vietnam Pro";
+        font-style: normal;
+        font-weight: 900;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HS0Im86Rb0bcw.woff2) format("woff2");
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+      }
+      @font-face {
+        font-family: "Be Vietnam Pro";
+        font-style: normal;
+        font-weight: 900;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/bevietnampro/v12/QdVMSTAyLFyeg_IDWvOJmVES_HS0Im81Rb0.woff2) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8L6tTNVOVgaY.woff2) format("woff2");
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8L6tTOlOV.woff2) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+    </style>
+    <style>
+      :root {
+        --bg: #0d0a1a;
+        --panel: #17122c;
+        --panel-edge: #2b2350;
+        --fg: #f3f1ff;
+        --fg-dim: #9089b0;
+        --accent-pink: #ff4fa3;
+        --accent-cyan: #37e6c4;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: "Be Vietnam Pro", sans-serif;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- background decoratives ---------- */
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        pointer-events: none;
+      }
+      #glow-top {
+        width: 560px;
+        height: 560px;
+        left: 260px;
+        top: 120px;
+        background: radial-gradient(circle, rgba(255, 79, 163, 0.35) 0%, rgba(255, 79, 163, 0) 70%);
+      }
+      #glow-bottom {
+        width: 640px;
+        height: 640px;
+        left: 220px;
+        top: 1085px;
+        background: radial-gradient(circle, rgba(55, 230, 196, 0.28) 0%, rgba(55, 230, 196, 0) 70%);
+      }
+
+      /* ---------- top comparison zone (y 64-824) ---------- */
+      .card {
+        position: absolute;
+        top: 70px;
+        width: 400px;
+        height: 680px;
+        border-radius: 28px;
+        background: var(--panel);
+        border: 1px solid var(--panel-edge);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 40px;
+        transform-origin: 50% 50%;
+        will-change: transform, opacity;
+      }
+      #card-left {
+        left: 120px;
+      }
+      #card-right {
+        left: 560px;
+      }
+      .card-icon {
+        position: relative;
+        width: 100%;
+        height: 480px;
+        display: grid;
+        place-items: center;
+      }
+      .card-label {
+        font-weight: 900;
+        font-size: 42px;
+        color: var(--accent-cyan);
+        text-transform: uppercase;
+        letter-spacing: 0.01em;
+        text-align: center;
+        padding: 0 16px;
+      }
+      /* dev icon: terminal window */
+      #terminal {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, #12121c 0%, #1b1b2a 100%);
+        border-radius: 20px 20px 0 0;
+      }
+      .term-dot {
+        position: absolute;
+        top: 18px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+      }
+      #dot-red {
+        left: 18px;
+        background: #ff5f57;
+      }
+      #dot-yellow {
+        left: 42px;
+        background: #febc2e;
+      }
+      #dot-green {
+        left: 66px;
+        background: #28c840;
+      }
+      #term-glyph {
+        position: absolute;
+        top: 130px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 120px;
+        color: var(--fg);
+      }
+      .code-line {
+        position: absolute;
+        left: 150px;
+        height: 10px;
+        border-radius: 5px;
+        background: var(--fg-dim);
+        opacity: 0.5;
+      }
+      #code-line-1 {
+        top: 300px;
+        width: 140px;
+      }
+      #code-line-2 {
+        top: 325px;
+        width: 90px;
+      }
+      /* devops icon: infinity loop */
+      #devops-panel {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, #0e1330 0%, #191f42 100%);
+        border-radius: 20px 20px 0 0;
+      }
+      .orbit-dot {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--accent-cyan);
+      }
+      #orbit-dot-1 {
+        top: 218px;
+        left: 148px;
+      }
+      #orbit-dot-2 {
+        top: 218px;
+        left: 298px;
+      }
+
+      /* VS badge */
+      #vs-badge {
+        position: absolute;
+        top: 355px;
+        left: 485px;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: var(--accent-pink);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        z-index: 5;
+        transform-origin: 50% 50%;
+        will-change: transform, opacity;
+      }
+      #vs-badge span {
+        font-weight: 900;
+        font-size: 34px;
+        color: var(--bg);
+        letter-spacing: 0.02em;
+      }
+
+      /* payoff verdict badges */
+      .verdict-badge {
+        position: absolute;
+        top: 40px;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        font-size: 32px;
+        z-index: 6;
+        transform-origin: 50% 50%;
+        opacity: 0;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      }
+      #verdict-left {
+        left: 389px;
+        background: var(--accent-cyan);
+        color: #0d0a1a;
+      }
+      #verdict-right {
+        left: 829px;
+        background: var(--accent-cyan);
+        color: #0d0a1a;
+      }
+
+      /* ---------- middle caption zone (y 840-1300) ---------- */
+      #eyebrow {
+        position: absolute;
+        top: 838px;
+        left: 110px;
+        width: 860px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 26px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-cyan);
+      }
+      #caption-zone {
+        position: absolute;
+        top: 890px;
+        left: 110px;
+        width: 860px;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+      .caption-line {
+        position: absolute;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: 900;
+        font-size: 64px;
+        line-height: 1.15;
+        color: var(--fg);
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      .caption-line-text {
+        display: inline-block;
+        max-width: 860px;
+      }
+      .kw {
+        display: inline-block;
+        color: var(--accent-pink);
+        margin: 0 8px;
+        transform-origin: 50% 50%;
+        will-change: transform;
+      }
+
+      /* ---------- bottom avatar zone (y 1315-1856) ---------- */
+      #avatar-host {
+        position: absolute;
+        top: 1315px;
+        left: 330px;
+        width: 420px;
+        height: 540px;
+        transform-origin: 50% 100%;
+        will-change: transform;
+      }
+      #avatar-body {
+        position: absolute;
+        top: 190px;
+        left: 85px;
+        width: 250px;
+        height: 330px;
+        border-radius: 40px;
+        background: linear-gradient(180deg, #1f183d 0%, #15102a 100%);
+        border: 2px solid var(--panel-edge);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform-origin: 50% 50%;
+        will-change: transform;
+      }
+      #chest-light {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--accent-cyan) 0%, rgba(55, 230, 196, 0.2) 70%);
+        box-shadow: 0 0 24px rgba(55, 230, 196, 0.6);
+      }
+      #avatar-head {
+        position: absolute;
+        top: 10px;
+        left: 105px;
+        width: 210px;
+        height: 190px;
+        border-radius: 36px;
+        background: var(--panel);
+        border: 2px solid var(--panel-edge);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        transform-origin: 50% 90%;
+        will-change: transform;
+      }
+      #antenna-stem {
+        position: absolute;
+        top: -30px;
+        left: 98px;
+        width: 14px;
+        height: 32px;
+        border-radius: 7px;
+        background: var(--panel-edge);
+      }
+      #antenna-tip {
+        position: absolute;
+        top: -46px;
+        left: 93px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--accent-pink);
+        box-shadow: 0 0 16px var(--accent-pink);
+      }
+      #visor {
+        position: absolute;
+        top: 45px;
+        left: 25px;
+        width: 160px;
+        height: 80px;
+        border-radius: 20px;
+        background: #090714;
+        border: 1px solid var(--panel-edge);
+      }
+      .eye {
+        position: absolute;
+        top: 65px;
+        width: 24px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--accent-cyan);
+        box-shadow: 0 0 16px var(--accent-cyan);
+      }
+      #eye-left {
+        left: 69px;
+      }
+      #eye-right {
+        left: 117px;
+      }
+      #mouth {
+        position: absolute;
+        top: 150px;
+        left: 83px;
+        width: 44px;
+        height: 10px;
+        border-radius: 4px;
+        background: var(--accent-pink);
+        transform-origin: 50% 0%;
+        will-change: transform;
+      }
+      .arm {
+        position: absolute;
+        top: 210px;
+        width: 46px;
+        height: 190px;
+        border-radius: 12px;
+        background: var(--panel-edge);
+        transform-origin: 50% 0%;
+        will-change: transform;
+      }
+      #arm-left {
+        left: 60px;
+      }
+      #arm-right {
+        left: 314px;
+      }
+      .hand {
+        position: absolute;
+        bottom: -14px;
+        left: 3px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent-cyan);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="39.4">
+      <section id="scene" class="clip" data-start="0" data-duration="39.4" data-track-index="1">
+        <div id="glow-top" class="glow"></div>
+        <div id="glow-bottom" class="glow"></div>
+
+        <!-- top: comparison cards -->
+        <div id="card-left" class="card">
+          <div class="card-icon">
+            <div id="terminal"></div>
+            <div class="term-dot" id="dot-red"></div>
+            <div class="term-dot" id="dot-yellow"></div>
+            <div class="term-dot" id="dot-green"></div>
+            <div id="term-glyph">&lt;/&gt;</div>
+            <div class="code-line" id="code-line-1"></div>
+            <div class="code-line" id="code-line-2"></div>
+          </div>
+          <div class="card-label">Dev</div>
+        </div>
+        <div id="card-right" class="card">
+          <div class="card-icon">
+            <div id="devops-panel"></div>
+            <svg viewBox="0 0 220 140" width="220" height="140" style="position: absolute; top: 170px; left: 125px">
+              <path d="M27.5,70 C27.5,49 44,32.5 65,32.5 C86,32.5 96,49 110,70 C124,91 134,107.5 155,107.5 C176,107.5 192.5,91 192.5,70 C192.5,49 176,32.5 155,32.5 C134,32.5 124,49 110,70 C96,91 86,107.5 65,107.5 C44,107.5 27.5,91 27.5,70 Z" fill="none" stroke="var(--fg)" stroke-width="16" stroke-linecap="round" />
+            </svg>
+            <div class="orbit-dot" id="orbit-dot-1"></div>
+            <div class="orbit-dot" id="orbit-dot-2"></div>
+          </div>
+          <div class="card-label">DevOps</div>
+        </div>
+        <div id="vs-badge"><span>VS</span></div>
+        <div id="verdict-left" class="verdict-badge">✓</div>
+        <div id="verdict-right" class="verdict-badge">✓</div>
+
+        <!-- middle: captions -->
+        <div id="eyebrow">Cường IT</div>
+        <div id="caption-zone">
+          <div class="caption-line" id="line-1"><span class="caption-line-text">Đây là <span class="kw" style="color: var(--accent-cyan)">DEV</span></span></div>
+          <div class="caption-line" id="line-2"><span class="caption-line-text">Đây là <span class="kw" style="color: var(--accent-cyan)">DEVOPS</span></span></div>
+          <div class="caption-line" id="line-3"><span class="caption-line-text">Sự khác nhau là gì?</span></div>
+          <div class="caption-line" id="line-4"><span class="caption-line-text">Dev là người viết <span class="kw">CODE,</span> xây dựng <span class="kw">TÍNH NĂNG</span> mới</span></div>
+          <div class="caption-line" id="line-5"><span class="caption-line-text">Họ biến ý tưởng thành sản phẩm chạy trên máy mình</span></div>
+          <div class="caption-line" id="line-6"><span class="caption-line-text">Giống như <span class="kw">KIẾN TRÚC SƯ</span> dựng nên toà nhà</span></div>
+          <div class="caption-line" id="line-7"><span class="caption-line-text">DevOps đưa code lên <span class="kw">SERVER,</span> <span class="kw">TỰ ĐỘNG HOÁ</span> mọi thứ</span></div>
+          <div class="caption-line" id="line-8"><span class="caption-line-text">Và <span class="kw">GIÁM SÁT</span> để hệ thống không bao giờ sập</span></div>
+          <div class="caption-line" id="line-9"><span class="caption-line-text">Giống như <span class="kw">BAN QUẢN LÝ</span> giữ toà nhà luôn hoạt động</span></div>
+          <div class="caption-line" id="line-10"><span class="caption-line-text">Một bên <span class="kw">TẠO RA</span> sản phẩm</span></div>
+          <div class="caption-line" id="line-11"><span class="caption-line-text">Một bên <span class="kw">GIỮ NÓ SỐNG</span> giữa hàng triệu người dùng</span></div>
+          <div class="caption-line" id="line-12"><span class="caption-line-text"><span class="kw" style="color: var(--accent-cyan)">DEV XÂY,</span> <span class="kw">DEVOPS VẬN HÀNH!</span></span></div>
+        </div>
+
+        <!-- bottom: 2D avatar host -->
+        <div id="avatar-host">
+          <div id="avatar-body">
+            <div id="chest-light"></div>
+          </div>
+          <div id="arm-left" class="arm"><div class="hand"></div></div>
+          <div id="arm-right" class="arm"><div class="hand"></div></div>
+          <div id="avatar-head">
+            <div id="antenna-stem"></div>
+            <div id="antenna-tip"></div>
+            <div id="visor"></div>
+            <div class="eye" id="eye-left"></div>
+            <div class="eye" id="eye-right"></div>
+            <div id="mouth"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- narration: Edge TTS, one clip per caption line, direct root children -->
+      <audio id="vo-1" src="assets/vo/line-1.mp3" data-start="0.55" data-duration="1.872" data-track-index="20"></audio>
+      <audio id="vo-2" src="assets/vo/line-2.mp3" data-start="2.772" data-duration="1.872" data-track-index="20"></audio>
+      <audio id="vo-3" src="assets/vo/line-3.mp3" data-start="5.094" data-duration="2.016" data-track-index="20"></audio>
+      <audio id="vo-4" src="assets/vo/line-4.mp3" data-start="7.51" data-duration="3.384" data-track-index="20"></audio>
+      <audio id="vo-5" src="assets/vo/line-5.mp3" data-start="11.194" data-duration="3.24" data-track-index="20"></audio>
+      <audio id="vo-6" src="assets/vo/line-6.mp3" data-start="14.734" data-duration="2.88" data-track-index="20"></audio>
+      <audio id="vo-7" src="assets/vo/line-7.mp3" data-start="18.064" data-duration="3.912" data-track-index="20"></audio>
+      <audio id="vo-8" src="assets/vo/line-8.mp3" data-start="22.276" data-duration="2.952" data-track-index="20"></audio>
+      <audio id="vo-9" src="assets/vo/line-9.mp3" data-start="25.528" data-duration="3.216" data-track-index="20"></audio>
+      <audio id="vo-10" src="assets/vo/line-10.mp3" data-start="29.194" data-duration="2.424" data-track-index="20"></audio>
+      <audio id="vo-11" src="assets/vo/line-11.mp3" data-start="31.918" data-duration="3.12" data-track-index="20"></audio>
+      <audio id="vo-12" src="assets/vo/line-12.mp3" data-start="35.488" data-duration="2.592" data-track-index="20"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ---------- entrance (0.0 - 0.75s) ----------
+      tl.fromTo("#card-left", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.0);
+      tl.fromTo("#card-right", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.15);
+      tl.fromTo("#vs-badge", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power3.out" }, 0.45);
+      tl.fromTo("#avatar-host", { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.1);
+      tl.fromTo("#eyebrow", { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, 0.15);
+
+      // ---------- caption line helper ----------
+      function showLine(id, inAt, outAt) {
+        tl.fromTo(id, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, inAt);
+        if (outAt != null) {
+          tl.to(id, { y: -16, opacity: 0, duration: 0.2, ease: "power2.in" }, outAt);
+        }
+        const kws = document.querySelectorAll(id + " .kw");
+        kws.forEach((el, i) => {
+          tl.fromTo(
+            el,
+            { scale: 1 },
+            { scale: 1.15, duration: 0.14, ease: "power2.out", yoyo: true, repeat: 1 },
+            inAt + 0.2 + i * 0.08,
+          );
+        });
+      }
+
+      // ---------- avatar pose helper ----------
+      function pose(leftDeg, rightDeg, at, dur) {
+        tl.to("#arm-left", { rotation: leftDeg, duration: dur, ease: "power3.out" }, at);
+        tl.to("#arm-right", { rotation: rightDeg, duration: dur, ease: "power3.out" }, at);
+      }
+      function headTilt(deg, at, dur) {
+        tl.to("#avatar-head", { rotation: deg, duration: dur, ease: "power3.out" }, at);
+      }
+      function talk(startAt, endAt) {
+        const cycle = 0.22;
+        const reps = Math.max(0, Math.floor((endAt - startAt) / cycle) - 1);
+        tl.to(
+          "#mouth",
+          { scaleY: 0.4, duration: cycle / 2, ease: "power1.inOut", yoyo: true, repeat: reps },
+          startAt,
+        );
+        tl.set("#mouth", { scaleY: 1 }, endAt);
+      }
+
+      // ---------- VO-driven beat timing ----------
+      const VO = {
+        1: { start: 0.55, dur: 1.872 },
+        2: { start: 2.772, dur: 1.872 },
+        3: { start: 5.094, dur: 2.016 },
+        4: { start: 7.51, dur: 3.384 },
+        5: { start: 11.194, dur: 3.24 },
+        6: { start: 14.734, dur: 2.88 },
+        7: { start: 18.064, dur: 3.912 },
+        8: { start: 22.276, dur: 2.952 },
+        9: { start: 25.528, dur: 3.216 },
+        10: { start: 29.194, dur: 2.424 },
+        11: { start: 31.918, dur: 3.12 },
+        12: { start: 35.488, dur: 2.592 },
+      };
+      const capOut = (n) => VO[n].start + VO[n].dur + 0.25;
+
+      // ---------- BEAT 1: HOOK (line 1-2) ----------
+      pose(115, -8, VO[1].start, 0.3);
+      showLine("#line-1", VO[1].start, capOut(1));
+      talk(VO[1].start, VO[1].start + VO[1].dur);
+
+      pose(8, -115, VO[2].start, 0.3);
+      showLine("#line-2", VO[2].start, capOut(2));
+      talk(VO[2].start, VO[2].start + VO[2].dur);
+
+      // ---------- BEAT 2: NÚT THẮT (line 3) ----------
+      pose(55, -55, VO[3].start, 0.35);
+      headTilt(6, VO[3].start, 0.35);
+      showLine("#line-3", VO[3].start, capOut(3));
+      talk(VO[3].start, VO[3].start + VO[3].dur);
+      headTilt(0, capOut(3), 0.3);
+
+      // ---------- BEAT 3: GIẢI A (DEV: line 4-5-6) ----------
+      tl.to("#card-left", { scale: 1.05, opacity: 1, duration: 0.4, ease: "power2.out" }, VO[4].start);
+      tl.to("#card-right", { scale: 0.96, opacity: 0.55, duration: 0.4, ease: "power2.out" }, VO[4].start);
+      pose(75, -8, VO[4].start, 0.3);
+      showLine("#line-4", VO[4].start, capOut(4));
+      talk(VO[4].start, VO[4].start + VO[4].dur);
+
+      pose(60, -15, VO[5].start, 0.3);
+      showLine("#line-5", VO[5].start, capOut(5));
+      talk(VO[5].start, VO[5].start + VO[5].dur);
+
+      pose(85, -8, VO[6].start, 0.3);
+      showLine("#line-6", VO[6].start, capOut(6));
+      talk(VO[6].start, VO[6].start + VO[6].dur);
+
+      // ---------- BEAT 4: GIẢI B (DEVOPS: line 7-8-9) ----------
+      tl.to("#card-left", { scale: 0.96, opacity: 0.55, duration: 0.4, ease: "power2.out" }, VO[7].start);
+      tl.to("#card-right", { scale: 1.05, opacity: 1, duration: 0.4, ease: "power2.out" }, VO[7].start);
+      pose(8, -75, VO[7].start, 0.3);
+      showLine("#line-7", VO[7].start, capOut(7));
+      talk(VO[7].start, VO[7].start + VO[7].dur);
+
+      pose(15, -60, VO[8].start, 0.3);
+      showLine("#line-8", VO[8].start, capOut(8));
+      talk(VO[8].start, VO[8].start + VO[8].dur);
+
+      pose(8, -85, VO[9].start, 0.3);
+      showLine("#line-9", VO[9].start, capOut(9));
+      talk(VO[9].start, VO[9].start + VO[9].dur);
+
+      // ---------- BEAT 5: SO SÁNH TRỰC TIẾP (line 10-11) ----------
+      tl.to("#card-left", { scale: 1.03, opacity: 1, duration: 0.3, ease: "power2.out" }, VO[10].start);
+      tl.to("#card-right", { scale: 0.98, opacity: 0.8, duration: 0.3, ease: "power2.out" }, VO[10].start);
+      pose(70, -20, VO[10].start, 0.3);
+      showLine("#line-10", VO[10].start, capOut(10));
+      talk(VO[10].start, VO[10].start + VO[10].dur);
+
+      tl.to("#card-left", { scale: 0.98, opacity: 0.8, duration: 0.3, ease: "power2.out" }, VO[11].start);
+      tl.to("#card-right", { scale: 1.03, opacity: 1, duration: 0.3, ease: "power2.out" }, VO[11].start);
+      pose(20, -70, VO[11].start, 0.3);
+      showLine("#line-11", VO[11].start, capOut(11));
+      talk(VO[11].start, VO[11].start + VO[11].dur);
+
+      // ---------- BEAT 6: PAYOFF (line 12) ----------
+      tl.to("#card-left", { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }, VO[12].start);
+      tl.to("#card-right", { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }, VO[12].start);
+      pose(8, -8, VO[12].start, 0.3);
+      tl.fromTo(
+        "#avatar-body",
+        { scale: 1 },
+        { scale: 1.04, duration: 0.3, ease: "power2.out", yoyo: true, repeat: 1 },
+        VO[12].start,
+      );
+      tl.fromTo("#verdict-left", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power3.out" }, VO[12].start + 0.15);
+      tl.fromTo("#verdict-right", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power3.out" }, VO[12].start + 0.25);
+      showLine("#line-12", VO[12].start, null); // holds to the end — no exit, this is the payoff
+      talk(VO[12].start, VO[12].start + VO[12].dur);
+
+      // ---------- ambient background glows (finite, phase-opposed) ----------
+      const ROOT_DURATION = 39.4;
+      const glowCycle = 3.2;
+      const glowReps = Math.max(0, Math.floor(ROOT_DURATION / glowCycle) - 1);
+      tl.fromTo(
+        "#glow-top",
+        { opacity: 0.6 },
+        { opacity: 1, duration: glowCycle / 2, ease: "sine.inOut", yoyo: true, repeat: glowReps },
+        0,
+      );
+      tl.fromTo(
+        "#glow-bottom",
+        { opacity: 1 },
+        { opacity: 0.6, duration: glowCycle / 2, ease: "sine.inOut", yoyo: true, repeat: glowReps },
+        0,
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
